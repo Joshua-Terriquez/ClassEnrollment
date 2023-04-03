@@ -1,8 +1,8 @@
-from flask import Flask
+from flask import Flask,render_template, request, redirect, url_for, session
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
+from flask_login import UserMixin,LoginManager,login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
 
 # instantiate app
@@ -20,9 +20,10 @@ db = SQLAlchemy(app)
 #this is used for migration(Model changes)
 migrate = Migrate(app,db)
 admin = Admin(app)
+login_manager = LoginManager(app)
 
 # Model(table) creations
-class Users(db.Model):
+class Users(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key = True, autoincrement=True)
     username = db.Column(db.String(30), unique=True)
     password = db.Column(db.String(30), unique=True)
@@ -61,6 +62,40 @@ admin.add_view(ModelView(Students,db.session))
 admin.add_view(ModelView(Teachers,db.session))
 admin.add_view(ModelView(Classes,db.session))
 admin.add_view(ModelView(Enrollments,db.session))
+
+@login_manager.user_loader
+def load_user(user_id):
+   #returns the user from the database
+   return Users.query.get(int(user_id))
+
+@app.route('/')
+def index():
+   return render_template('index.html')
+@app.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+def dashboard():
+ return render_template("dashboard.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+   if request.method == "POST":
+       username = request.form.get("username")
+       password = request.form.get("password")
+      
+       user = Users.query.filter_by(username=username).first()
+      
+       if not user or not user.password == password:
+           return "Incorrect username or password"
+      
+       login_user(user)
+       return redirect(url_for("dashboard"))
+      
+   return render_template("index.html")
+
+@app.route("/logout")
+def logout():
+   logout_user()
+   return redirect(url_for("index"))
 
 
 if __name__== '__main__':
