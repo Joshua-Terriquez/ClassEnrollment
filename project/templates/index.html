@@ -1,13 +1,14 @@
-<html>
-  <head>
-    <title>Login</title>
-  </head>
-  <body>
-    <h1>Login</h1>
-    <form action="{{ url_for('login') }}" method="post">
-      <input type="text" name="username" placeholder="Username">
-      <input type="password" name="password" placeholder="Password">
-      <input type="submit" value="Submit">
-    </form>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Page</title>
+</head>
+<body>
+  <h1>Login authentication system in flask</h1>
+  <a href="{{url_for('studentLogin')}}">Student Login</a> <br>
+  <a href="{{url_for('adminLogin')}}">Admin Login</a>
+</body>
 </html>
